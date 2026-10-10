@@ -2,11 +2,14 @@ packages:
   - apps/*
   - packages/*
   - tools/*
+  - demos/*
 
 catalogMode: prefer
 
 catalog:
+  '@github/copilot-sdk': ^1.0.18
   "@types/node": ^24
+  tsx: ^4.23.15
   typescript: ^7.0.2
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
@@ -19,4 +22,6 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
 allowBuilds:
+  esbuild: set this to true or false
+  koffi: true
   playwright-chromium: true
