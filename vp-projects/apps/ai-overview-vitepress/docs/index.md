@@ -7,10 +7,10 @@ hero:
   tagline: My great project tagline
   actions:
     - theme: brand
-      text: Markdown Examples
+      text: 智能体开发
       link: /markdown-examples
     - theme: alt
-      text: API Examples
+      text: AI 应用
       link: /api-examples
 
 features:
