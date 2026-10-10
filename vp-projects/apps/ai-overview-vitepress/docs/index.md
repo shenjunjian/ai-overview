@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: 智能体开发
-      link: /markdown-examples
+      link: /agent
     - theme: alt
       text: AI 应用
-      link: /api-examples
+      link: /ai-app
 
 features:
   - title: Feature A
