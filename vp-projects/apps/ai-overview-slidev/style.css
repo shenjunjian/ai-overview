@@ -1,0 +1,29 @@
+.chip {
+  display: inline-block;
+  border: 1.5px solid #4b5563;
+  border-radius: 8px;
+  padding: 1px 10px;
+  margin: 1px 2px;
+  background: #ffffff;
+  white-space: nowrap;
+}
+.chip-blue { background: #a5d3f2; }
+.chip-green { background: #abe3b8; }
+.chip-amber { background: #f6d8a8; }
+
+.card {
+  border: 1.5px solid #4b5563;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #ffffff;
+}
+.card-blue { background: #a5d3f2; }
+.card-green { background: #abe3b8; }
+.card-amber { background: #f6d8a8; }
+
+.map-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
