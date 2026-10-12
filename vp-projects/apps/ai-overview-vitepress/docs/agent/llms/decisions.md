@@ -96,6 +96,8 @@ typesafe-ai/skills
 - laya-multilingual：非英文和多语言任务。
 - laya-typed-decisions：和其微调工作流相近的 typed-decision 任务。
 
+官方仓库： https://github.com/NandhaKishorM/laya/ 还有 java ,go ,dotnet的客户端
+
 ### 使用方法
 
 1.  python
