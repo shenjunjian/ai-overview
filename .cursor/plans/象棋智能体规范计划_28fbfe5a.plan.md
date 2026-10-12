@@ -4,7 +4,7 @@ overview: 在 `vp-projects/demos/pikafish-agent` 落地一个中国象棋分析�
 todos:
   - id: rewrite-agents-md
     content: 重写 AGENTS.md 并新增 docs/architecture.md、docs/uci.md（锁定栈、seam、不变量、react-xiangqiboard）
-    status: pending
+    status: completed
   - id: scaffold-next
     content: 在 pikafish-agent 目录初始化 Next.js App Router，隔离 Vite+ lint，配好 .env.example 与引擎下载脚本
     status: pending
