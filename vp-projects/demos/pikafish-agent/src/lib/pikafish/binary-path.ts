@@ -4,10 +4,10 @@ import path from "node:path";
 const packageName = "pikafish-agent";
 
 export function engineBinaryName(platform: NodeJS.Platform = process.platform): string {
-  if (platform === "win32") return "pikafish.exe";
-  if (platform === "linux") return "pikafish";
+  if (platform === "win32") return "Pikafish-Windows-x86-64-universal.exe";
+  if (platform === "linux") return "Pikafish-Linux-x86-64-universal";
   throw new Error(
-    `不支持的系统 ${platform}。引擎路径只探测 Windows（pikafish.exe）和 Linux（pikafish）。`,
+    `不支持的系统 ${platform}。引擎路径只探测 Windows（Pikafish-Windows-x86-64-universal.exe）和 Linux（Pikafish-Linux-x86-64-universal）。`,
   );
 }
 

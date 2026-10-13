@@ -154,7 +154,7 @@ test("names the missing binary and nnue", () => {
     writeFileSync(nnuePath, "");
     expect(engineAvailabilityError({ binaryPath, nnuePath })).toBeUndefined();
     expect(() => new PikafishEngine({ command: path.join(dir, "missing.exe") })).toThrow(
-      /找不到皮卡鱼二进制[\s\S]*setup:engine/,
+      /找不到皮卡鱼二进制/,
     );
   } finally {
     rmSync(dir, { recursive: true, force: true });

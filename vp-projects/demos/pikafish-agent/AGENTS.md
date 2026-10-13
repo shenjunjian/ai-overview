@@ -22,7 +22,7 @@
 - 前端：`@ai-sdk/react` 的 `useChat`
 - 模型：DeepSeek `deepseek-v4-flash`；`apiKey` 读环境变量 `MY_DS`
 - 本包的 Next.js 源文件按本包自己的 tsconfig 与 lint 检查
-- 引擎二进制与 `.nnue` 由下载脚本放入 `pikafish-engine/`；仓库保留该目录里的协议文本
+- 引擎二进制与 `.nnue` 在仓库的 `pikafish-engine/` 中
 
 Harness 与 `useChat` 的类型以已安装的 `node_modules/ai/docs` 和 `@ai-sdk/harness` 为准。
 

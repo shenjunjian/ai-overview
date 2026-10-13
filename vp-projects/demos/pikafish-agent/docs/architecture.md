@@ -38,5 +38,5 @@ DeepSeek 走 OpenCode 的 OpenAI-compatible 通道：
 - `src/lib/pikafish/engine.ts` — `PikafishEngine`
 - `src/lib/tools/analyze-position.ts` — host tool
 - `skills/xiangqi-analysis.md` — 如何读评分、如何向棋手解释、何时再搜
-- `scripts/setup-pikafish.mjs` — 下载当前系统的通用二进制与 `.nnue`
+- `pikafish-engine/` — 各平台通用二进制与 `pikafish.nnue`
 - `.env.example` — `MY_DS=`

@@ -7,8 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "vp test",
-    "setup:engine": "node scripts/setup-pikafish.mjs"
+    "test": "vp test"
   },
   "dependencies": {
     "next": "16.4.0",
@@ -16,7 +15,6 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "7zip-bin": "^5.2.0",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "catalog:",
     "@types/react": "^19",

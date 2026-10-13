@@ -30,7 +30,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Pikafish binaries and weights. Keep the protocol text files.
-pikafish-engine/*
-!pikafish-engine/*.txt

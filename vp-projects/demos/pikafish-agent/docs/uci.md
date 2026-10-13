@@ -25,7 +25,7 @@
 - 结束搜索：先发送 `stop`，再等待 `bestmove`。`stop` 只设置停止标记。
 - 同一个 `PikafishEngine` 实例上的搜索串行执行。
 - 无法解析的局面或非法历史着法时，引擎会输出 `CRITICAL ERROR` 并退出。把这段消息交给调用方。
-- 二进制路径：Windows `pikafish-engine/pikafish.exe`，Linux `pikafish-engine/pikafish`。NNUE 与二进制放在同一目录，由引擎自行加载。
+- 二进制路径：Windows `pikafish-engine/Pikafish-Windows-x86-64-universal.exe`，Linux `pikafish-engine/Pikafish-Linux-x86-64-universal`。NNUE 与二进制放在同一目录，由引擎自行加载。
 - 握手、`stop`、串行搜索和 NNUE 路径留在 `PikafishEngine` 内。
 
 ## 接口

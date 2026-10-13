@@ -48,10 +48,10 @@ export function engineAvailabilityError(paths: {
   nnuePath: string;
 }): string | undefined {
   if (!isFile(paths.binaryPath)) {
-    return `找不到皮卡鱼二进制：${paths.binaryPath}。请先运行 pnpm setup:engine。`;
+    return `找不到皮卡鱼二进制：${paths.binaryPath}。`;
   }
   if (!isFile(paths.nnuePath)) {
-    return `找不到与引擎配套的 pikafish.nnue：${paths.nnuePath}。请先运行 pnpm setup:engine。`;
+    return `找不到与引擎配套的 pikafish.nnue：${paths.nnuePath}。`;
   }
   return undefined;
 }
@@ -294,7 +294,7 @@ export class PikafishEngine {
 
     if (options.command) {
       if (!isFile(options.command)) {
-        throw new Error(`找不到皮卡鱼二进制：${options.command}。请先运行 pnpm setup:engine。`);
+        throw new Error(`找不到皮卡鱼二进制：${options.command}。`);
       }
       this.command = options.command;
       this.args = options.args ?? [];

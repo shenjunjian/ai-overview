@@ -6,7 +6,7 @@ todos:
     content: 重写 AGENTS.md 并新增 docs/architecture.md、docs/uci.md（锁定栈、seam、不变量、react-xiangqiboard）
     status: completed
   - id: scaffold-next
-    content: 在 pikafish-agent 目录初始化 Next.js App Router，隔离 Vite+ lint，配好 .env.example 与引擎下载脚本
+    content: 在 pikafish-agent 目录初始化 Next.js App Router，隔离 Vite+ lint，配好 .env.example；引擎二进制随仓库提供
     status: completed
   - id: pikafish-engine-module
     content: 实现 PikafishEngine UCI deep module 与解析测试
@@ -59,7 +59,7 @@ isProject: false
   - `PikafishEngine`：小接口，藏 UCI 进程/握手/`info` 解析
   - `LocalNetworkSandbox`：实现 `HarnessV1SandboxProvider`，藏本机 workspace + 端口 + 进程
   - `HarnessAgent`：会话、skill、host tool 的唯一入口
-- **不变量**：着法与评分只来自皮卡鱼；OpenCode 只负责任务编排与解释；host tool 在 Node 进程执行，不经过 sandbox；二进制与 `.nnue` 不入库，用脚本下载。
+- **不变量**：着法与评分只来自皮卡鱼；OpenCode 只负责任务编排与解释；host tool 在 Node 进程执行，不经过 sandbox；二进制与 `.nnue` 放在 `pikafish-engine/` 并随仓库提供。
 - **指针**：`docs/architecture.md`（何时改栈/会话）、`docs/uci.md`（何时改引擎协议）、`package.json`（命令以环境为准，不在 AGENTS 里复述）。
 
 ### 2. 新增 `docs/architecture.md` 与 `docs/uci.md`
@@ -105,7 +105,7 @@ flowchart LR
 - `src/lib/pikafish/engine.ts` — UCI 引擎 deep module
 - `src/lib/tools/analyze-position.ts` — host tool
 - `src/components/XiangqiBoard.tsx` — `react-xiangqiboard` 封装（FEN + PV 箭头）
-- `scripts/setup-pikafish.mjs` — 从 GitHub Releases 拉取当前系统的通用二进制 + `.nnue` 到 `pikafish-engine/`
+- `pikafish-engine/` — 各平台通用二进制与 `pikafish.nnue`，随仓库提供
 - `.env.example` — `MY_DS=`
 - `skills/xiangqi-analysis.md` — Harness skill：如何读评分、如何向棋手解释、何时再搜
 
@@ -127,12 +127,12 @@ analyze(input: { fen: string; moves?: string[]; movetimeMs?: number; depth?: num
 
 - package name：`pikafish-agent`；scripts 用 `next dev` / `next build` / `next start`，外加 `vp test` 测纯 TS 模块（引擎解析、sandbox 契约）
 - 根目录 Vite+ 的 `prefer-vite-plus-imports` 不要套到 Next.js 文件；本包用自己的 lint/tsconfig
-- `.gitignore` 忽略 `pikafish-engine/*.exe`、无扩展名二进制、`*.nnue`、`.env*.local`；保留协议 txt
+- `.gitignore` 忽略 `.env*.local`；`pikafish-engine/` 里的通用二进制、`.nnue` 与协议 txt 一并入库
 - 实现 AI SDK 时对照 **已安装版本** 的 `node_modules/ai/docs` 与 `@ai-sdk/harness` 类型，不凭记忆写 `useChat` / Harness API
 
 ## 实现顺序
 
-1. **脚手架**：在现有目录初始化 Next.js（App Router + TS + Tailwind），写入 `.env.example`、下载脚本、引擎路径探测（Windows `pikafish.exe` / Linux `pikafish`）。
+1. **脚手架**：在现有目录初始化 Next.js（App Router + TS + Tailwind），写入 `.env.example`，引擎路径探测 Windows `Pikafish-Windows-x86-64-universal.exe` / Linux `Pikafish-Linux-x86-64-universal`。
 2. **引擎模块 + 测试**：UCI 解析与 `analyze()`；无二进制时集成测试 skip，有二进制时跑一次开局 `movetime 200`。
 3. **LocalNetworkSandbox**：对照 Harness V1 类型实现 create/resume、文件、exec、端口；最小测试覆盖 `getPortEndpoint` 与工作目录。
 4. **HarnessAgent**：OpenCode + DeepSeek 认证 + `analyzePosition` host tool + xiangqi skill；`/api/chat` 按官方 UI 路由做 session。
@@ -141,7 +141,7 @@ analyze(input: { fen: string; moves?: string[]; movetimeMs?: number; depth?: num
 
 ## 验收
 
-- `MY_DS` 已配置且引擎已下载时，本地 `pnpm dev` 可打开页面
+- `MY_DS` 已配置时，本地 `pnpm dev` 可打开页面（引擎在 `pikafish-engine/`）
 - 用户问开局评估：出现皮卡鱼 tool 结果（bestmove / cp 或 mate / pv），助手中文解释与之一致，棋盘出现 PV 箭头
 - 无 `MY_DS` 或无引擎时，错误信息可读，而不是泛 HTTP 500
-- `vp test`（本包）覆盖 UCI 解析；不把 NNUE 二进制提交进 git
+- `vp test`（本包）覆盖 UCI 解析；`pikafish-engine/` 中的通用二进制与 NNUE 随仓库提供
