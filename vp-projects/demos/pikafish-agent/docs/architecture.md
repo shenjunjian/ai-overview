@@ -17,10 +17,10 @@ OpenCode 是 bridge-backed harness，需要能暴露端口的 network sandbox。
 
 DeepSeek 走 OpenCode 的 OpenAI-compatible 通道：
 
-- `OPENAI_API_KEY` 取 `MY_DS`
-- `OPENAI_BASE_URL=https://api.deepseek.com`
-- `provider: 'openai'`
-- model `deepseek-v4-flash`（API 仍接受此 id，实际路由到当前 Flash）
+- API key 取 `MY_DS`，写进 OpenCode provider `deepseek-api` 的 `options.apiKey`
+- `baseURL` 是 `https://api.deepseek.com/v1`，npm 用 `@ai-sdk/openai-compatible`
+- 模型 id 是 `deepseek-v4-flash`。`auth` 留空：已安装的适配器一旦走 openai 通道，就会用自己的 provider 配置盖掉这里的模型登记
+- `small_model` 用 `deepseek-api/deepseek-v4-flash`，标题生成不再去打 OpenCode 默认的小模型
 
 `analyzePosition({ fen, moves?, movetimeMs })` 是 host tool，在 Next.js 进程里调用 `PikafishEngine`。返回值形状见 `docs/uci.md`。OpenCode 的 `bash` 与 `write` 用 `inactiveTools` 或 `permissionMode` 收紧，使编码 agent 留在分析任务里。
 

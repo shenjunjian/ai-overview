@@ -20,7 +20,7 @@
 - 服务端：Next.js App Router
 - Harness：`@ai-sdk/harness` + `@ai-sdk/harness-opencode`
 - 前端：`@ai-sdk/react` 的 `useChat`
-- 模型：DeepSeek `deepseek-v4-flash`；`apiKey` 读环境变量 `MY_DS`
+- 模型：DeepSeek `deepseek-v4-flash`，OpenCode provider 是 `deepseek-api`；`apiKey` 读环境变量 `MY_DS`
 - 本包的 Next.js 源文件按本包自己的 tsconfig 与 lint 检查
 - 引擎二进制与 `.nnue` 在仓库的 `pikafish-engine/` 中
 

@@ -22,7 +22,7 @@ todos:
     status: completed
   - id: browser-verify
     content: 浏览器走通开局分析主路径并核对 tool 与展示一致
-    status: pending
+    status: completed
 isProject: false
 ---
 
@@ -57,7 +57,7 @@ isProject: false
 只保留 agent 每次都要遵守的内容：
 
 - **定位**：皮卡鱼驱动的象棋分析智能体；FEN 是局面唯一事实来源。
-- **栈**：Next.js App Router 服务端；`@ai-sdk/harness` + `@ai-sdk/harness-opencode`；`@ai-sdk/react` 的 `useChat`；模型 DeepSeek `deepseek-v4-flash`（API 仍接受此 id，实际路由到当前 Flash）；`apiKey` 只读 `MY_DS`。
+- **栈**：Next.js App Router 服务端；`@ai-sdk/harness` + `@ai-sdk/harness-opencode`；`@ai-sdk/react` 的 `useChat`；模型 DeepSeek `deepseek-v4-flash`，OpenCode provider `deepseek-api`（空 auth，避免 openai 通道盖掉模型登记）；`apiKey` 只读 `MY_DS`。
 - **棋盘 UI**：`react-xiangqiboard` 负责坐标、拖拽和箭头。汉字棋子用 `customPieces`。走法、送将和中文记谱在 `src/lib/xiangqi/play.ts`。细则见 `docs/board.md`。
 - **Seam**：
   - `PikafishEngine`：小接口，藏 UCI 进程/握手/`info` 解析
@@ -93,7 +93,7 @@ flowchart LR
 关键运行时约定：
 
 - OpenCode 是 **bridge-backed harness**，必须有能暴露端口的 network sandbox。官方 `@ai-sdk/sandbox-vercel` 不用。本仓库用 `createLocalNetworkSandboxSession` 得到 `HarnessV1NetworkSandboxSession`，再交给 `HarnessAgent.createSession({ sandboxSession })`。会话目录 + 本机 `exec`/`spawn` + `getPortEndpoint` 返回 `127.0.0.1:<port>`。这不是 VM 隔离，而是满足 Harness V1 的本地 adapter；接口按安装后的 `@ai-sdk/harness` 类型核对，不凭记忆写。
-- DeepSeek 经 OpenCode 的 OpenAI-compatible 通道：`OPENAI_API_KEY=MY_DS`，`OPENAI_BASE_URL=https://api.deepseek.com`，`provider: 'openai'`，model `deepseek-v4-flash`。
+- DeepSeek 经 OpenCode 的 OpenAI-compatible 通道：provider `deepseek-api`，npm `@ai-sdk/openai-compatible`，`baseURL=https://api.deepseek.com/v1`，`apiKey=MY_DS` 写在 provider options。`auth` 留空，避免已安装适配器的 openai 通道盖掉这个模型。模型 id `deepseek-v4-flash`。
 - 皮卡鱼 **host tool**：`analyzePosition({ fen, moves?, movetimeMs })` 在 Next.js 进程 spawn 引擎。OpenCode 的 `bash`/`write` 默认收紧（`inactiveTools` 或 `permissionMode`），避免编码 agent 改仓库。
 - 会话：`chat id` = harness `sessionId`；`session.detach()` 持久化到本机文件（demo 足够），路由按 [Harness UI](https://ai-sdk.dev/docs/ai-sdk-harnesses/ui) 用 `toUIMessageStream`，不要直接 `createAgentUIStreamResponse`。
 

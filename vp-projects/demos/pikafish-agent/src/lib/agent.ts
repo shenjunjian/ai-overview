@@ -8,7 +8,8 @@ import { createOpenCode } from "@ai-sdk/harness-opencode";
 import { findPackageRoot } from "./pikafish/binary-path";
 import { analyzePosition } from "./tools/analyze-position";
 
-const deepSeekBaseUrl = "https://api.deepseek.com";
+const deepSeekBaseUrl = "https://api.deepseek.com/v1";
+const deepSeekProviderId = "deepseek-api";
 const modelId = "deepseek-v4-flash";
 
 const instructions = [
@@ -55,11 +56,30 @@ function createXiangqiAgent(apiKey: string) {
   return new HarnessAgent({
     id: "xiangqi-analysis",
     harness: createOpenCode({
-      auth: {
-        OPENAI_API_KEY: apiKey,
-        OPENAI_BASE_URL: deepSeekBaseUrl,
+      // 空 auth 避免适配器用 openai 通道覆盖 provider，从而丢掉自定义模型。
+      auth: {},
+      provider: deepSeekProviderId,
+      openCodeConfig: {
+        small_model: `${deepSeekProviderId}/${modelId}`,
+        provider: {
+          [deepSeekProviderId]: {
+            npm: "@ai-sdk/openai-compatible",
+            name: "DeepSeek",
+            options: {
+              apiKey,
+              baseURL: deepSeekBaseUrl,
+            },
+            models: {
+              [modelId]: {
+                id: modelId,
+                name: "DeepSeek V4 Flash",
+                tool_call: true,
+                temperature: true,
+              },
+            },
+          },
+        },
       },
-      provider: "openai",
     }),
     model: modelId,
     instructions,
