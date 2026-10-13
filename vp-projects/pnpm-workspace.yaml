@@ -7,7 +7,10 @@ packages:
 catalogMode: prefer
 
 catalog:
-  '@ai-sdk/harness': ^1.0.148
+  '@ai-sdk/harness': ^1.0.149
+  '@ai-sdk/harness-opencode': ^1.0.151
+  ai: 7.0.138
+  zod: ^4.1.8
   '@github/copilot-sdk': ^1.0.18
   "@types/node": ^24
   tsx: ^4.23.15
@@ -26,3 +29,10 @@ allowBuilds:
   esbuild: true
   koffi: true
   playwright-chromium: true
+minimumReleaseAgeExclude:
+  - '@ai-sdk/gateway@4.0.111'
+  - '@ai-sdk/harness-opencode@1.0.151'
+  - '@ai-sdk/harness@1.0.149'
+  - '@ai-sdk/provider-utils@5.0.59'
+  - '@ai-sdk/provider@4.0.27'
+  - ai@7.0.138

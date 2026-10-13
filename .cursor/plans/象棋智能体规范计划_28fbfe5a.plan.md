@@ -16,7 +16,7 @@ todos:
     status: completed
   - id: harness-agent-route
     content: 接 HarnessAgent + OpenCode + DeepSeek MY_DS + analyzePosition host tool + /api/chat session
-    status: pending
+    status: completed
   - id: board-chat-ui
     content: 用 useChat 与 react-xiangqiboard 做棋盘+对话 UI，将 PV 画到棋盘
     status: pending
