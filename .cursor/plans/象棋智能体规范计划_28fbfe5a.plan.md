@@ -7,7 +7,7 @@ todos:
     status: completed
   - id: scaffold-next
     content: 在 pikafish-agent 目录初始化 Next.js App Router，隔离 Vite+ lint，配好 .env.example 与引擎下载脚本
-    status: pending
+    status: completed
   - id: pikafish-engine-module
     content: 实现 PikafishEngine UCI deep module 与解析测试
     status: pending

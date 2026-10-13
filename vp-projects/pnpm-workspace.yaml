@@ -22,6 +22,6 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
   koffi: true
   playwright-chromium: true
