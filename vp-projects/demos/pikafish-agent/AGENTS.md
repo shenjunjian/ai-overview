@@ -9,7 +9,7 @@
    - `LocalNetworkSandbox`：`HarnessV1SandboxProvider`。本机 workspace、端口、进程留在实现内。
    - `HarnessAgent`：会话、skill、host tool。`analyzePosition` 在 Node 进程执行。
    - 棋盘：`react-xiangqiboard`，用它的 FEN 与箭头画出当前局面和 PV。
-   完成：调用方不依赖 seam 内部的进程、协议或端口。
+     完成：调用方不依赖 seam 内部的进程、协议或端口。
 2. 界面上的 bestmove、cp 或 mate、pv 指回同一次 `analyze` 返回值。
    完成：每条着法、评分和 PV 都能对上这次皮卡鱼结果。
 3. 命中文末指针时，先读那份文档再改。

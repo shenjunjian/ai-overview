@@ -4,4 +4,5 @@
 
 通常是开箱即用的产品， 但是 ai-sdk, mastra, codex等也开源自己的harness或agent 供大家二次开发使用。每一个harness 都有许多的设计在里面，可以借鉴学习。
 
-微软用Rust重写GitHub Copilot： https://mp.weixin.qq.com/s/eFk6THFSCbbucjdnwW5QAQ
+[微软用Rust重写GitHub Copilot](./rust-copilot.md)
+[ai-sdk的harness研究] (./ai-sdk-harness.md)

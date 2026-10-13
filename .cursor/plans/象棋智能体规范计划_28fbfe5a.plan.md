@@ -10,7 +10,7 @@ todos:
     status: completed
   - id: pikafish-engine-module
     content: 实现 PikafishEngine UCI deep module 与解析测试
-    status: pending
+    status: completed
   - id: local-sandbox
     content: 实现不依赖 Vercel 的 LocalNetworkSandbox（Harness V1 network sandbox）
     status: pending
