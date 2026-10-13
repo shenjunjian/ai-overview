@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: board-chat-ui
     content: 用 useChat 与 react-xiangqiboard 做棋盘+对话 UI，将 PV 画到棋盘
-    status: pending
+    status: completed
   - id: browser-verify
     content: 浏览器走通开局分析主路径并核对 tool 与展示一致
     status: pending

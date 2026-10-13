@@ -10,8 +10,6 @@ import {
 import { getXiangqiAgent } from "@/lib/agent";
 import { resumeOrCreateSession } from "@/lib/session-store";
 
-export const runtime = "nodejs";
-
 type ChatRequest = {
   id?: string;
   messages?: UIMessage[];

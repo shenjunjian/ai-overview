@@ -12,11 +12,13 @@
   "dependencies": {
     "@ai-sdk/harness": "catalog:",
     "@ai-sdk/harness-opencode": "catalog:",
+    "@ai-sdk/react": "catalog:",
     "ai": "catalog:",
-    "zod": "catalog:",
     "next": "16.4.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "react-xiangqiboard": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

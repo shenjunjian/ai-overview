@@ -18,6 +18,8 @@ catalog:
   vite: npm:@voidzero-dev/vite-plus-core@1.1.0
   vite-plus: 1.1.0
   vitepress: 2.0.0-alpha.20
+  '@ai-sdk/react': 4.0.141
+  react-xiangqiboard: 0.1.12
 overrides:
   vite@*: "catalog:"
 peerDependencyRules:
@@ -36,3 +38,5 @@ minimumReleaseAgeExclude:
   - '@ai-sdk/provider-utils@5.0.59'
   - '@ai-sdk/provider@4.0.27'
   - ai@7.0.138
+  - '@ai-sdk/mcp@2.0.74'
+  - '@ai-sdk/react@4.0.141'
