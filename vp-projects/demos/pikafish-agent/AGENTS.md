@@ -8,7 +8,7 @@
    - `PikafishEngine`：`analyze`。UCI 进程、握手、`info` 解析留在实现内。
    - `createLocalNetworkSandboxSession`：返回 `HarnessV1NetworkSandboxSession`，由调用方传给 `HarnessAgent.createSession({ sandboxSession })`。本机 workspace、端口、进程留在实现内。
    - `HarnessAgent`：会话、skill、host tool。`analyzePosition` 在 Node 进程执行。
-   - 棋盘：`react-xiangqiboard`，用它的 FEN 与箭头画出当前局面和 PV。
+   - 棋盘：`react-xiangqiboard` 的 FEN 与箭头。汉字棋子、中文棋谱和合法走子的约定不在组件里。
      完成：调用方不依赖 seam 内部的进程、协议或端口。
 2. 界面上的 bestmove、cp 或 mate、pv 指回同一次 `analyze` 返回值。
    完成：每条着法、评分和 PV 都能对上这次皮卡鱼结果。
@@ -30,4 +30,5 @@ Harness 与 `useChat` 的类型以已安装的 `node_modules/ai/docs` 和 `@ai-s
 
 - 会话：改栈或会话时读 `docs/architecture.md`。
 - 协议：改引擎协议时读 `docs/uci.md`。
+- 棋盘：改棋子、布局、棋谱或走子规则时读 `docs/board.md`。
 - 命令：本包是 Next.js 应用。开发与构建走 `package.json` 里的 Next scripts；`vp test` 只跑纯 TS 模块。

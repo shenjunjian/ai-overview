@@ -103,6 +103,21 @@ function uciSquareToBoard(square: string): string | undefined {
   return `${file}${uciRank + 1}`;
 }
 
+export type Board = Position;
+export type SquareCoords = { row: number; col: number };
+
+export function readBoard(fen: string): Board | undefined {
+  return parsePosition(fen);
+}
+
+export function writeBoard(board: Board): string {
+  return formatFen(board);
+}
+
+export function squareCoords(square: string): SquareCoords | undefined {
+  return squareIndex(square);
+}
+
 export function boardFen(fen: string): string | undefined {
   const position = parsePosition(fen);
   return position ? formatFen(position) : undefined;
@@ -110,42 +125,6 @@ export function boardFen(fen: string): string | undefined {
 
 export function sideToMove(fen: string): SideToMove | undefined {
   return parsePosition(fen)?.side;
-}
-
-export function withSide(fen: string, side: SideToMove): string | undefined {
-  const position = parsePosition(fen);
-  if (!position) return undefined;
-  return formatFen({ ...position, side });
-}
-
-export function movePiece(fen: string, from: string, to: string): string | undefined {
-  const position = parsePosition(fen);
-  const source = squareIndex(from);
-  const target = squareIndex(to);
-  if (!position || !source || !target) return undefined;
-  const piece = position.rows[source.row]?.[source.col];
-  if (!piece) return undefined;
-  if (source.row === target.row && source.col === target.col) return formatFen(position);
-  const rows = position.rows.map((row) => row.slice());
-  const sourceRow = rows[source.row];
-  const targetRow = rows[target.row];
-  if (!sourceRow || !targetRow) return undefined;
-  sourceRow[source.col] = "";
-  targetRow[target.col] = piece;
-  return formatFen({ rows, side: position.side });
-}
-
-export function removePiece(fen: string, square: string): string | undefined {
-  const position = parsePosition(fen);
-  const index = squareIndex(square);
-  if (!position || !index) return undefined;
-  const piece = position.rows[index.row]?.[index.col];
-  if (!piece) return undefined;
-  const rows = position.rows.map((row) => row.slice());
-  const row = rows[index.row];
-  if (!row) return undefined;
-  row[index.col] = "";
-  return formatFen({ rows, side: position.side });
 }
 
 export function pvToArrows(pv: readonly string[]): [string, string, string][] {

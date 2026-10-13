@@ -36,13 +36,17 @@ isProject: false
 
 ## 产品范围（MVP）
 
-象棋**分析**智能体，不是完整对弈平台。
+象棋**分析**智能体，不是完整对弈平台。人在棋盘上把局面走出来，仍然按中国象棋规则走。棋子、布局、棋谱和走子的约定在 [docs/board.md](vp-projects/demos/pikafish-agent/docs/board.md)。
 
-- 左侧棋盘：摆子 / 导入 FEN / 展示当前局面
+- 页面固定左右布局，最小宽度约 900px：左侧棋盘与棋谱，右侧对话。窄屏也保持左右，不改成上下堆叠
+- 棋子是汉字圆子，不是国际象棋图形。红方：帅、仕、相、马、车、炮、兵。黑方：将、士、象、马、车、炮、卒
+- 左侧用中文棋谱，不提供局面 FEN 编辑框。每一行一个回合：行首是回合数字，第一列红方，第二列黑方。例如 `1  炮二平五  马二进三`，下一行 `2  马二进三  炮二平五`
+- 红方、黑方轮流走子。只接受该棋子的合法走法；走完后本方将帅不能被将军（含将帅照面）。不合走法或送将时棋子回到原位，并说明原因
 - 右侧对话：用中文问「这步好不好」「怎么走」「评估」
 - 智能体必须先调皮卡鱼，再解释；**禁止在没有引擎结果时编造着法或评分**
-- 引擎 PV 以箭头叠加到棋盘
-- 人机对弈放到后续迭代，不进 MVP
+- 引擎 PV 以箭头叠加到当前棋盘，不改写棋谱
+- FEN 仍是引擎和内部局面的事实来源，只出现在发给皮卡鱼的请求里
+- 人机对弈放到后续迭代，不进 MVP。这里的轮流走子是让人在棋盘上摆出要分析的局面
 
 ## 开发规范（执行时写入仓库）
 
@@ -54,7 +58,7 @@ isProject: false
 
 - **定位**：皮卡鱼驱动的象棋分析智能体；FEN 是局面唯一事实来源。
 - **栈**：Next.js App Router 服务端；`@ai-sdk/harness` + `@ai-sdk/harness-opencode`；`@ai-sdk/react` 的 `useChat`；模型 DeepSeek `deepseek-v4-flash`（API 仍接受此 id，实际路由到当前 Flash）；`apiKey` 只读 `MY_DS`。
-- **棋盘 UI**：`react-xiangqiboard`（React 原生、MIT、支持 FEN 与箭头；分析场景比 canvas 方案更合适）。
+- **棋盘 UI**：`react-xiangqiboard` 负责坐标、拖拽和箭头。汉字棋子用 `customPieces`。走法、送将和中文记谱在 `src/lib/xiangqi/play.ts`。细则见 `docs/board.md`。
 - **Seam**：
   - `PikafishEngine`：小接口，藏 UCI 进程/握手/`info` 解析
   - `createLocalNetworkSandboxSession`：返回 `HarnessV1NetworkSandboxSession`，交给 `HarnessAgent.createSession({ sandboxSession })`。本机 workspace、端口、进程留在实现内。
@@ -104,7 +108,8 @@ flowchart LR
 - `src/lib/sandbox/local-network-sandbox.ts` — Harness V1 本地 sandbox
 - `src/lib/pikafish/engine.ts` — UCI 引擎 deep module
 - `src/lib/tools/analyze-position.ts` — host tool
-- `src/components/XiangqiBoard.tsx` — `react-xiangqiboard` 封装（FEN + PV 箭头）
+- `src/components/XiangqiBoard.tsx` — `react-xiangqiboard` 封装（汉字棋子、FEN、PV 箭头）
+- `src/lib/xiangqi/play.ts` — 轮流走子、棋子走法、送将、中文记谱
 - `pikafish-engine/` — 各平台通用二进制与 `pikafish.nnue`，随仓库提供
 - `.env.example` — `MY_DS=`
 - `skills/xiangqi-analysis.md` — Harness skill：如何读评分、如何向棋手解释、何时再搜
@@ -142,6 +147,8 @@ analyze(input: { fen: string; moves?: string[]; movetimeMs?: number; depth?: num
 ## 验收
 
 - `MY_DS` 已配置时，本地 `pnpm dev` 可打开页面（引擎在 `pikafish-engine/`）
-- 用户问开局评估：出现皮卡鱼 tool 结果（bestmove / cp 或 mate / pv），助手中文解释与之一致，棋盘出现 PV 箭头
+- 开局棋子为汉字；左右布局，页面最小宽度约 900px；棋谱代替 FEN 编辑框
+- 红方走出「炮二平五」后棋谱记上一行；黑方应对后写在同一行第二列。接着再拖红子以外的棋子会被拒绝。马腿被挡、相眼被堵、兵未过河横走、送将都会弹回
+- 用户问开局评估：出现皮卡鱼 tool 结果（bestmove / cp 或 mate / pv），助手中文解释与之一致，棋盘出现 PV 箭头，棋谱不被这次分析改写
 - 无 `MY_DS` 或无引擎时，错误信息可读，而不是泛 HTTP 500
 - `vp test`（本包）覆盖 UCI 解析；`pikafish-engine/` 中的通用二进制与 NNUE 随仓库提供

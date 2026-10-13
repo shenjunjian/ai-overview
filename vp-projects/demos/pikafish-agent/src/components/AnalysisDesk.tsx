@@ -4,20 +4,17 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { XiangqiBoard } from "@/components/XiangqiBoard";
+import { playMove, scoreRows, sideInCheck, type MoveFault, type ScoreEntry } from "@/lib/xiangqi/play";
 import {
-  boardFen,
   formatScore,
-  movePiece,
   openingFen,
   pvToArrows,
   questionWithPosition,
   readAnalysis,
-  removePiece,
   sideToMove,
-  withSide,
   type ShownAnalysis,
 } from "@/lib/xiangqi/position";
-import { XiangqiBoard } from "@/components/XiangqiBoard";
 
 type XiangqiTools = {
   analyzePosition: {
@@ -99,6 +96,50 @@ function AnalyzePositionPart({ part }: { part: AnalyzePart }) {
   return <p className="text-sm text-zinc-500">{fen ? `正在让皮卡鱼分析：${fen}` : "正在让皮卡鱼分析…"}</p>;
 }
 
+function faultMessage(fault: MoveFault, side: "w" | "b"): string {
+  if (fault === "turn") return side === "w" ? "现在轮到红方。" : "现在轮到黑方。";
+  if (fault === "check") return "这一步送将。";
+  return "这一步不合规则。";
+}
+
+function ScoreSheet({ entries }: { entries: readonly ScoreEntry[] }) {
+  const rows = scoreRows(entries);
+  return (
+    <div className="overflow-hidden rounded-md border border-zinc-300 dark:border-zinc-700">
+      <table className="w-full text-sm">
+        <thead className="bg-zinc-50 text-xs text-zinc-500 dark:bg-zinc-900">
+          <tr>
+            <th className="w-14 px-2 py-1 text-left font-medium">回合</th>
+            <th className="px-2 py-1 text-left font-medium">红方</th>
+            <th className="px-2 py-1 text-left font-medium">黑方</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 ? (
+            <tr>
+              <td className="px-2 py-3 text-zinc-500" colSpan={3}>
+                从开局开始，红方先走。
+              </td>
+            </tr>
+          ) : (
+            rows.map((row) => (
+              <tr key={row.round} className="border-t border-zinc-200 dark:border-zinc-800">
+                <td className="px-2 py-1 tabular-nums">{row.round}</td>
+                <td className="px-2 py-1" style={{ fontFamily: "KaiTi, STKaiti, SimSun, serif" }}>
+                  {row.red}
+                </td>
+                <td className="px-2 py-1" style={{ fontFamily: "KaiTi, STKaiti, SimSun, serif" }}>
+                  {row.black}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function MessageView({ message }: { message: XiangqiUIMessage }) {
   const label = message.role === "user" ? "你" : "助手";
   return (
@@ -140,51 +181,25 @@ export function AnalysisDesk() {
     transport,
   });
   const [fen, setFen] = useState(openingFen);
-  const [draft, setDraft] = useState(openingFen);
+  const [moves, setMoves] = useState<ScoreEntry[]>([]);
   const [arrows, setArrows] = useState<[string, string, string][]>([]);
-  const [fenError, setFenError] = useState<string | undefined>();
+  const [moveFault, setMoveFault] = useState<string | undefined>();
   const [input, setInput] = useState("");
-  const editingFen = useRef(false);
   const appliedAnalysis = useRef<string | undefined>(undefined);
   const bottomRef = useRef<HTMLDivElement>(null);
   const side = sideToMove(fen);
   const busy = status === "submitted" || status === "streaming";
 
   useEffect(() => {
-    if (!editingFen.current) setDraft(fen);
-  }, [fen]);
-
-  useEffect(() => {
     const found = latestAnalysis(messages);
     if (!found || found.id === appliedAnalysis.current) return;
     appliedAnalysis.current = found.id;
-    const next = boardFen(found.analysis.fen);
-    if (!next) return;
-    setFen(next);
-    setFenError(undefined);
     setArrows(pvToArrows(found.analysis.pv));
   }, [messages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
   }, [messages, status]);
-
-  function replaceFen(next: string) {
-    setFen(next);
-    setArrows([]);
-    setFenError(undefined);
-  }
-
-  function applyDraft() {
-    const next = boardFen(draft);
-    if (!next) {
-      setFenError("这不是棋盘能摆的中国象棋 FEN。需要 10 行、每行 9 路，以及行棋方 w 或 b。");
-      return;
-    }
-    setDraft(next);
-    if (next !== fen) replaceFen(next);
-    else setFenError(undefined);
-  }
 
   function submitQuestion(question: string) {
     const text = question.trim();
@@ -195,99 +210,55 @@ export function AnalysisDesk() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 lg:flex-row">
-      <section className="space-y-4 lg:w-[29rem] lg:shrink-0">
+    <main className="mx-auto flex min-h-full w-full min-w-[900px] max-w-6xl flex-1 flex-row gap-6 px-4 py-6">
+      <section className="w-[29rem] shrink-0 space-y-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">皮卡鱼分析</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            拖动棋子摆局面，拖出棋盘可以拿走。红方在下方。
+            红方在下方。红黑轮流走子，不合规则的着法会回到原位。
           </p>
         </div>
-        <div className="overflow-x-auto">
-          <XiangqiBoard
-            fen={fen}
-            arrows={arrows}
-            onMove={(from, to) => {
-              const next = movePiece(fen, from, to);
-              if (!next || next === fen) return next === fen;
-              replaceFen(next);
-              return true;
-            }}
-            onRemove={(square) => {
-              const next = removePiece(fen, square);
-              if (next) replaceFen(next);
-            }}
-          />
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm aria-pressed:bg-zinc-900 aria-pressed:text-white dark:border-zinc-700 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
-            aria-pressed={side === "w"}
-            onClick={() => {
-              const next = withSide(fen, "w");
-              if (next && next !== fen) replaceFen(next);
-            }}
-          >
-            红方走
-          </button>
-          <button
-            type="button"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm aria-pressed:bg-zinc-900 aria-pressed:text-white dark:border-zinc-700 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
-            aria-pressed={side === "b"}
-            onClick={() => {
-              const next = withSide(fen, "b");
-              if (next && next !== fen) replaceFen(next);
-            }}
-          >
-            黑方走
-          </button>
+        <XiangqiBoard
+          fen={fen}
+          side={side ?? "w"}
+          arrows={arrows}
+          onMove={(from, to) => {
+            if (from === to) return false;
+            const result = playMove(fen, from, to);
+            if (!result.ok) {
+              setMoveFault(faultMessage(result.fault, side ?? "w"));
+              return false;
+            }
+            setMoveFault(undefined);
+            setFen(result.move.fen);
+            setArrows([]);
+            setMoves((current) => [...current, { side: result.move.side, notation: result.move.notation }]);
+            return true;
+          }}
+        />
+        <div className="flex items-center gap-3">
+          <p className="text-sm">
+            {side === "b" ? "轮到黑方" : "轮到红方"}
+            {sideInCheck(fen) ? "，将军" : ""}
+          </p>
           <button
             type="button"
             className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700"
-            onClick={() => replaceFen(openingFen)}
+            onClick={() => {
+              setFen(openingFen);
+              setMoves([]);
+              setArrows([]);
+              setMoveFault(undefined);
+            }}
           >
             恢复开局
           </button>
         </div>
-        <form
-          className="space-y-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            applyDraft();
-          }}
-        >
-          <label className="block text-sm" htmlFor="fen">
-            局面 FEN
-          </label>
-          <textarea
-            id="fen"
-            value={draft}
-            rows={3}
-            spellCheck={false}
-            className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 font-mono text-xs dark:border-zinc-700"
-            onFocus={() => {
-              editingFen.current = true;
-            }}
-            onBlur={() => {
-              editingFen.current = false;
-            }}
-            onChange={(event) => {
-              setDraft(event.target.value);
-              setFenError(undefined);
-            }}
-          />
-          {fenError ? <p className="text-sm text-red-700 dark:text-red-400">{fenError}</p> : null}
-          <button
-            type="submit"
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm text-white dark:bg-zinc-100 dark:text-zinc-900"
-          >
-            应用 FEN
-          </button>
-        </form>
+        {moveFault ? <p className="text-sm text-red-700 dark:text-red-400">{moveFault}</p> : null}
+        <ScoreSheet entries={moves} />
       </section>
 
-      <section className="flex min-h-[32rem] min-w-0 flex-1 flex-col lg:h-[calc(100vh-3rem)]">
+      <section className="flex h-[calc(100vh-3rem)] min-h-[32rem] min-w-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
           {messages.length === 0 ? (
             <p className="text-sm text-zinc-600 dark:text-zinc-400">

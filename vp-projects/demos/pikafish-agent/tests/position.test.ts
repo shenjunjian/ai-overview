@@ -3,13 +3,10 @@ import { expect, test } from "vite-plus/test";
 import {
   boardFen,
   formatScore,
-  movePiece,
   openingFen,
   pvToArrows,
   questionWithPosition,
   readAnalysis,
-  removePiece,
-  withSide,
 } from "../src/lib/xiangqi/position.ts";
 
 const searched = {
@@ -27,19 +24,6 @@ test("board fen keeps placement and side, and drops clock fields", () => {
   );
   expect(boardFen("8/8/8/8/8/8/8/8 w")).toBeUndefined();
   expect(boardFen("not a fen")).toBeUndefined();
-});
-
-test("dragging a piece rewrites the fen without changing side", () => {
-  expect(movePiece(openingFen, "h3", "e3")).toBe(
-    "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C2C4/9/RNBAKABNR w",
-  );
-  expect(removePiece(openingFen, "h3")).toBe(
-    "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C7/9/RNBAKABNR w",
-  );
-  expect(withSide(openingFen, "b")).toBe(
-    "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR b",
-  );
-  expect(movePiece(openingFen, "e5", "e4")).toBeUndefined();
 });
 
 test("pv arrows use board ranks and mark the first move", () => {

@@ -30,7 +30,8 @@ DeepSeek 走 OpenCode 的 OpenAI-compatible 通道：
 ## 落点
 
 - `src/app/page.tsx` — `useChat` 与棋盘
-- `src/components/XiangqiBoard.tsx` — `react-xiangqiboard`（FEN + PV 箭头）
+- `src/components/XiangqiBoard.tsx` — `react-xiangqiboard`（汉字棋子、FEN、PV 箭头）
+- `src/lib/xiangqi/play.ts` — 轮流走子、走法、送将、中文记谱。约定见 `docs/board.md`
 - `src/app/api/chat/route.ts` — 流式路由
 - `src/lib/agent.ts` — `HarnessAgent` 工厂（module scope）
 - `src/lib/session-store.ts` — resume / detach
