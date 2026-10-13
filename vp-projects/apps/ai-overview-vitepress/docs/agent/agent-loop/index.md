@@ -5,3 +5,4 @@
 通过`ai-sdk` 库的演化，可以看到它是从 `函数 =》 agentLoop => harness` 三个阶段， `mastra`库也是区分 `代理 =》 harness` ， 所以我们有必要单独了解代理循环
 
 [7种主流AI Agent架构全解析](./7-agent-pattern)
+[ai-sdk 研究](./ai-sdk-agentloop.md)
