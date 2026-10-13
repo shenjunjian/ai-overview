@@ -6,7 +6,7 @@
 
 1. 选定 seam，改动只穿过它的小接口。
    - `PikafishEngine`：`analyze`。UCI 进程、握手、`info` 解析留在实现内。
-   - `LocalNetworkSandbox`：`HarnessV1SandboxProvider`。本机 workspace、端口、进程留在实现内。
+   - `createLocalNetworkSandboxSession`：返回 `HarnessV1NetworkSandboxSession`，由调用方传给 `HarnessAgent.createSession({ sandboxSession })`。本机 workspace、端口、进程留在实现内。
    - `HarnessAgent`：会话、skill、host tool。`analyzePosition` 在 Node 进程执行。
    - 棋盘：`react-xiangqiboard`，用它的 FEN 与箭头画出当前局面和 PV。
      完成：调用方不依赖 seam 内部的进程、协议或端口。

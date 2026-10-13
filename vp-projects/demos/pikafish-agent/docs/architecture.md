@@ -13,7 +13,7 @@
 
 ## 运行时
 
-OpenCode 是 bridge-backed harness，需要能暴露端口的 network sandbox。`LocalNetworkSandbox` 提供会话目录、本机 `exec` / `spawn`，`getPortEndpoint` 返回 `127.0.0.1:<port>`。这是 Harness V1 的本机 adapter，不是虚拟机隔离。
+OpenCode 是 bridge-backed harness，需要能暴露端口的 network sandbox。`createLocalNetworkSandboxSession` 返回 `HarnessV1NetworkSandboxSession`，调用方把它交给 `HarnessAgent.createSession({ sandboxSession })`。会话目录、本机 `exec` / `spawn` 留在实现内，`getPortEndpoint` 返回 `127.0.0.1:<port>`。这是 Harness V1 的本机 adapter，不是虚拟机隔离。
 
 DeepSeek 走 OpenCode 的 OpenAI-compatible 通道：
 
@@ -34,7 +34,7 @@ DeepSeek 走 OpenCode 的 OpenAI-compatible 通道：
 - `src/app/api/chat/route.ts` — 流式路由
 - `src/lib/agent.ts` — `HarnessAgent` 工厂（module scope）
 - `src/lib/session-store.ts` — resume / detach
-- `src/lib/sandbox/local-network-sandbox.ts` — `LocalNetworkSandbox`
+- `src/lib/sandbox/local-network-sandbox.ts` — `createLocalNetworkSandboxSession`
 - `src/lib/pikafish/engine.ts` — `PikafishEngine`
 - `src/lib/tools/analyze-position.ts` — host tool
 - `skills/xiangqi-analysis.md` — 如何读评分、如何向棋手解释、何时再搜

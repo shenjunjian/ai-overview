@@ -7,6 +7,7 @@ packages:
 catalogMode: prefer
 
 catalog:
+  '@ai-sdk/harness': ^1.0.148
   '@github/copilot-sdk': ^1.0.18
   "@types/node": ^24
   tsx: ^4.23.15

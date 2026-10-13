@@ -13,7 +13,7 @@ todos:
     status: completed
   - id: local-sandbox
     content: 实现不依赖 Vercel 的 LocalNetworkSandbox（Harness V1 network sandbox）
-    status: pending
+    status: completed
   - id: harness-agent-route
     content: 接 HarnessAgent + OpenCode + DeepSeek MY_DS + analyzePosition host tool + /api/chat session
     status: pending
@@ -57,7 +57,7 @@ isProject: false
 - **棋盘 UI**：`react-xiangqiboard`（React 原生、MIT、支持 FEN 与箭头；分析场景比 canvas 方案更合适）。
 - **Seam**：
   - `PikafishEngine`：小接口，藏 UCI 进程/握手/`info` 解析
-  - `LocalNetworkSandbox`：实现 `HarnessV1SandboxProvider`，藏本机 workspace + 端口 + 进程
+  - `createLocalNetworkSandboxSession`：返回 `HarnessV1NetworkSandboxSession`，交给 `HarnessAgent.createSession({ sandboxSession })`。本机 workspace、端口、进程留在实现内。
   - `HarnessAgent`：会话、skill、host tool 的唯一入口
 - **不变量**：着法与评分只来自皮卡鱼；OpenCode 只负责任务编排与解释；host tool 在 Node 进程执行，不经过 sandbox；二进制与 `.nnue` 放在 `pikafish-engine/` 并随仓库提供。
 - **指针**：`docs/architecture.md`（何时改栈/会话）、`docs/uci.md`（何时改引擎协议）、`package.json`（命令以环境为准，不在 AGENTS 里复述）。
@@ -88,7 +88,7 @@ flowchart LR
 
 关键运行时约定：
 
-- OpenCode 是 **bridge-backed harness**，必须有能暴露端口的 network sandbox。官方 `@ai-sdk/sandbox-vercel` 不用。本仓库实现 `LocalNetworkSandbox`：会话目录 + 本机 `exec`/`spawn` + `getPortEndpoint` 返回 `127.0.0.1:<port>`。这不是 VM 隔离，而是满足 Harness V1 的本地 adapter；接口按安装后的 `@ai-sdk/harness` 类型核对，不凭记忆写。
+- OpenCode 是 **bridge-backed harness**，必须有能暴露端口的 network sandbox。官方 `@ai-sdk/sandbox-vercel` 不用。本仓库用 `createLocalNetworkSandboxSession` 得到 `HarnessV1NetworkSandboxSession`，再交给 `HarnessAgent.createSession({ sandboxSession })`。会话目录 + 本机 `exec`/`spawn` + `getPortEndpoint` 返回 `127.0.0.1:<port>`。这不是 VM 隔离，而是满足 Harness V1 的本地 adapter；接口按安装后的 `@ai-sdk/harness` 类型核对，不凭记忆写。
 - DeepSeek 经 OpenCode 的 OpenAI-compatible 通道：`OPENAI_API_KEY=MY_DS`，`OPENAI_BASE_URL=https://api.deepseek.com`，`provider: 'openai'`，model `deepseek-v4-flash`。
 - 皮卡鱼 **host tool**：`analyzePosition({ fen, moves?, movetimeMs })` 在 Next.js 进程 spawn 引擎。OpenCode 的 `bash`/`write` 默认收紧（`inactiveTools` 或 `permissionMode`），避免编码 agent 改仓库。
 - 会话：`chat id` = harness `sessionId`；`session.detach()` 持久化到本机文件（demo 足够），路由按 [Harness UI](https://ai-sdk.dev/docs/ai-sdk-harnesses/ui) 用 `toUIMessageStream`，不要直接 `createAgentUIStreamResponse`。
