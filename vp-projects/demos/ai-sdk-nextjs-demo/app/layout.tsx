@@ -4,8 +4,12 @@ import "./globals.css";
 
 import { registerTelemetry } from "ai";
 import { DevToolsTelemetry } from "@ai-sdk/devtools";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-registerTelemetry(DevToolsTelemetry());
+// @ai-sdk/devtools 不允许在生产构建中使用，仅在开发环境注册
+if (process.env.NODE_ENV !== "production") {
+  registerTelemetry(DevToolsTelemetry());
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +29,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }
