@@ -6,3 +6,4 @@
 
 [7种主流AI Agent架构全解析](./7-agent-pattern)
 [ai-sdk 研究](./ai-sdk-agentloop.md)
+[ai-sdk 的ai 总结](./ai-sdk-doc-by-ai.md)
