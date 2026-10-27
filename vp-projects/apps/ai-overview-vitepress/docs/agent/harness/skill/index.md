@@ -12,3 +12,5 @@ GoogleChrome/modern-web-guidance: 现在web开发中，浏览器兼容性skill. 
 
 - 暴露高级： 最佳实践，
 - 暴露的低层：特性指南（新加入chrome的特性的实现以及使用指南）
+
+chrome-devtools-mcp / cli /skill 官方仓库有相应技能包。
