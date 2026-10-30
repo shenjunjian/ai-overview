@@ -6,3 +6,5 @@
 
 [微软用Rust重写GitHub Copilot](./rust-copilot.md)
 [ai-sdk的harness研究] (./ai-sdk-harness.md)
+
+cursor agent 也开源了基于文件系统。
