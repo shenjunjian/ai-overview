@@ -41,7 +41,7 @@ async function main(): Promise<void> {
       onNotice: notice => {
         if (notice.type === 'skills-materialized') {
           renderer.queueNotice(
-            `skills in sandbox ${notice.skillsDir}: ${describeSkillSync(notice)}`,
+            `沙箱内 skills 目录 ${notice.skillsDir}：${describeSkillSync(notice)}`,
           );
           return;
         }
@@ -65,8 +65,8 @@ async function main(): Promise<void> {
   const abortController = new AbortController();
   process.on('SIGINT', () => {
     if (!abortController.signal.aborted) {
-      renderer.notice('interrupt request received - stopping the current turn');
-      abortController.abort(new Error('Interrupted by user'));
+      renderer.notice('收到中断请求 —— 正在停止当前轮次');
+      abortController.abort(new Error('用户中断'));
       return;
     }
     process.exit(130);
@@ -80,7 +80,7 @@ async function main(): Promise<void> {
 
     const lines = readStdinLines({
       input: process.stdin,
-      prompt: `\n${paint('blue', paint('bold', 'you'))} > `,
+      prompt: `\n${paint('blue', paint('bold', '你'))} > `,
     });
     for (;;) {
       const line = await lines.next();
@@ -94,24 +94,24 @@ async function main(): Promise<void> {
         continue;
       }
       if (input === '/tools') {
-        renderer.info(`host tools (simulated): ${MOCK_TOOL_NAMES.join(', ')}`);
-        renderer.info('sandbox tools: bash, read, write, edit, grep, glob, ls');
-        renderer.info('sandbox runtime: QuickJS via `node` / `js-exec` - no host execution, no network');
+        renderer.info(`宿主工具（模拟）：${MOCK_TOOL_NAMES.join(', ')}`);
+        renderer.info('沙箱工具：bash、read、write、edit、grep、glob、ls');
+        renderer.info('沙箱运行时：QuickJS（`node` / `js-exec`）—— 不在宿主执行，无网络');
         continue;
       }
       if (input === '/skills') {
-        if (skills.length === 0) renderer.info(`no skills found in ${skillsDir}`);
-        for (const skill of skills) renderer.info(`skill ${skill.name} - ${skill.description}`);
+        if (skills.length === 0) renderer.info(`在 ${skillsDir} 中没有找到任何 skill`);
+        for (const skill of skills) renderer.info(`skill ${skill.name} —— ${skill.description}`);
         continue;
       }
       if (input === '/reset') {
         await destroyQuietly(session);
         session = await agent.createSession({ sandboxSession: sandbox.session });
-        renderer.info(`conversation reset - files on disk untouched (session ${session.sessionId})`);
+        renderer.info(`对话已重置 —— 磁盘上的文件保持不变（session ${session.sessionId}）`);
         continue;
       }
       if (input.startsWith('/')) {
-        renderer.info(`unknown command ${input} - try /help`);
+        renderer.info(`未知命令 ${input} —— 输入 /help 查看命令列表`);
         continue;
       }
 
@@ -209,7 +209,7 @@ async function runTurn(options: RunTurnOptions): Promise<void> {
     }
   } catch (error) {
     if (abortController.signal.aborted) {
-      renderer.notice('turn aborted');
+      renderer.notice('本轮已中止');
     } else {
       renderer.error(error instanceof Error ? error.message : String(error));
     }
@@ -236,25 +236,35 @@ function printBanner(info: {
   const { config, sandbox, skillsDir, skills, session } = info;
   const lines = [
     paint('bold', 'ai-sdk-harness-demo'),
-    '  harness        deepseek (host-driven HarnessV1 adapter)',
-    `  model          ${config.model}`,
-    `  api key env    ${config.apiKeyEnvVar}`,
-    `  host folder    ${sandbox.hostFolder}`,
-    `  sandbox mount  ${sandbox.mountPoint} -> ${sandbox.hostFolder}`,
-    `  sandbox home   ${sandbox.homeDir} (in memory)`,
-    `  work dir       ${sandbox.mountPoint}`,
-    '  js runtime     QuickJS (sandboxed, `node` / `js-exec`)',
-    `  session        ${session.sessionId}`,
-    `  skills         ${
+    `  ${padLabel('harness')}deepseek（宿主驱动的 HarnessV1 adapter）`,
+    `  ${padLabel('模型')}${config.model}`,
+    `  ${padLabel('密钥变量')}${config.apiKeyEnvVar}`,
+    `  ${padLabel('宿主文件夹')}${sandbox.hostFolder}`,
+    `  ${padLabel('沙箱挂载')}${sandbox.mountPoint} -> ${sandbox.hostFolder}`,
+    `  ${padLabel('沙箱 HOME')}${sandbox.homeDir}（内存）`,
+    `  ${padLabel('工作目录')}${sandbox.mountPoint}`,
+    `  ${padLabel('JS 运行时')}QuickJS（沙箱内执行，\`node\` / \`js-exec\`）`,
+    `  ${padLabel('会话')}${session.sessionId}`,
+    `  ${padLabel('Skills')}${
       skills.length === 0
-        ? `none (looked in ${skillsDir})`
+        ? `无（已查找 ${skillsDir}）`
         : skills.map(skill => skill.name).join(', ')
     }`,
-    `  host tools     ${MOCK_TOOL_NAMES.join(', ')} (simulated)`,
+    `  ${padLabel('宿主工具')}${MOCK_TOOL_NAMES.join(', ')}（模拟）`,
     '',
-    '  Type a request, /help for commands, /exit to quit.',
+    '  输入需求开始对话，/help 查看命令，/exit 退出。',
   ];
   process.stdout.write(`${lines.join('\n')}\n`);
+}
+
+const WIDE_GLYPHS =
+  /[\u1100-\u115F\u2E80-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE6F\uFF00-\uFF60\uFFE0-\uFFE6]/;
+
+/** CJK glyphs occupy two terminal cells, so pad by display width, not length. */
+function padLabel(label: string, width = 13): string {
+  let display = 0;
+  for (const char of label) display += WIDE_GLYPHS.test(char) ? 2 : 1;
+  return `${label}${' '.repeat(Math.max(1, width - display))}`;
 }
 
 function describeSkillSync(notice: {
@@ -263,10 +273,10 @@ function describeSkillSync(notice: {
   readonly unchanged: string[];
 }): string {
   const parts: string[] = [];
-  if (notice.written.length > 0) parts.push(`written ${notice.written.join(', ')}`);
-  if (notice.removed.length > 0) parts.push(`removed ${notice.removed.join(', ')}`);
-  if (notice.unchanged.length > 0) parts.push(`unchanged ${notice.unchanged.join(', ')}`);
-  return parts.length === 0 ? 'none' : parts.join('; ');
+  if (notice.written.length > 0) parts.push(`已写入 ${notice.written.join(', ')}`);
+  if (notice.removed.length > 0) parts.push(`已移除 ${notice.removed.join(', ')}`);
+  if (notice.unchanged.length > 0) parts.push(`未变化 ${notice.unchanged.join(', ')}`);
+  return parts.length === 0 ? '无' : parts.join('；');
 }
 
 main().catch(error => {

@@ -26,6 +26,14 @@ function truncate(text: string, max: number): string {
   return `${normalized.slice(0, max)} … (+${normalized.length - max} chars)`;
 }
 
+/** `file-change` event names arrive in English from the harness. */
+const fileChangeLabels: Record<string, string> = {
+  create: '新建',
+  modify: '修改',
+  delete: '删除',
+  change: '变更',
+};
+
 function stringify(value: unknown): string {
   if (typeof value === 'string') return value;
   if (value instanceof Error) return value.stack ?? `${value.name}: ${value.message}`;
@@ -94,7 +102,7 @@ export class ConsoleRenderer {
       case 'text-delta':
         if (!this.inText) {
           this.closeReasoning();
-          process.stdout.write(`\n${paint('green', paint('bold', 'assistant'))} `);
+          process.stdout.write(`\n${paint('green', paint('bold', '助手'))} `);
           this.inText = true;
         }
         process.stdout.write(part.text);
@@ -104,7 +112,7 @@ export class ConsoleRenderer {
         if (!this.showReasoning) return;
         if (!this.inReasoning) {
           this.closeText();
-          process.stdout.write(`\n${paint('magenta', 'thinking')} `);
+          process.stdout.write(`\n${paint('magenta', '思考')} `);
           this.inReasoning = true;
         }
         process.stdout.write(paint('dim', part.text));
@@ -114,14 +122,15 @@ export class ConsoleRenderer {
         this.closeStreams();
         if (part.toolName === 'fileChange') {
           const payload = part.input as { event?: string; path?: string };
+          const event = fileChangeLabels[payload.event ?? 'change'] ?? (payload.event ?? '变更');
           process.stdout.write(
-            `\n${paint('yellow', '✎')} ${paint('yellow', payload.event ?? 'change')} ${paint('bold', payload.path ?? '')}\n`,
+            `\n${paint('yellow', '✎')} ${paint('yellow', event)} ${paint('bold', payload.path ?? '')}\n`,
           );
           return;
         }
         if (part.toolName === 'compaction') return;
         const args = truncate(stringify(part.input), this.maxToolInputChars);
-        const label = part.providerExecuted === true ? 'sandbox' : 'host';
+        const label = part.providerExecuted === true ? '沙箱' : '宿主';
         process.stdout.write(
           `\n${paint('cyan', '⚙')} ${paint('bold', part.toolName)} ${paint('dim', `(${label})`)}\n${paint('dim', args.split('\n').map(line => `    ${line}`).join('\n'))}\n`,
         );
@@ -140,14 +149,14 @@ export class ConsoleRenderer {
       case 'tool-error':
         this.closeStreams();
         process.stdout.write(
-          `${paint('red', '  ↳ error ')}${paint('red', truncate(stringify(part.error), this.maxToolOutputChars))}\n`,
+          `${paint('red', '  ↳ 出错 ')}${paint('red', truncate(stringify(part.error), this.maxToolOutputChars))}\n`,
         );
         return;
 
       case 'error':
         this.closeStreams();
         process.stdout.write(
-          `\n${paint('red', '✖ turn failed: ')}${paint('red', truncate(stringify(part.error), 2000))}\n`,
+          `\n${paint('red', '✖ 本轮失败：')}${paint('red', truncate(stringify(part.error), 2000))}\n`,
         );
         return;
 
@@ -155,7 +164,7 @@ export class ConsoleRenderer {
         this.flushNotices();
         this.closeStreams();
         process.stdout.write(
-          `\n${paint('dim', `— done (${part.finishReason}, ${formatUsage(part.totalUsage)})`)}\n`,
+          `\n${paint('dim', `— 结束（${finishReasonLabels[String(part.finishReason)] ?? String(part.finishReason)}，${formatUsage(part.totalUsage)}）`)}\n`,
         );
         return;
 
@@ -187,8 +196,19 @@ export class ConsoleRenderer {
   }
 }
 
+/** Unified finish reasons reported by the harness. */
+const finishReasonLabels: Record<string, string> = {
+  stop: '正常结束',
+  length: '达到长度或步数上限',
+  'content-filter': '内容过滤',
+  'tool-calls': '工具调用',
+  error: '出错',
+  interrupted: '被中断',
+  other: '其它',
+};
+
 function formatUsage(usage: unknown): string {
-  if (usage == null || typeof usage !== 'object') return 'usage n/a';
+  if (usage == null || typeof usage !== 'object') return '用量未知';
   const value = usage as {
     inputTokens?: number;
     outputTokens?: number;
@@ -196,8 +216,8 @@ function formatUsage(usage: unknown): string {
   };
   const input = value.inputTokens ?? 0;
   const output = value.outputTokens ?? 0;
-  if (value.inputTokens == null && value.outputTokens == null) return 'usage n/a';
-  return `in ${input} tok, out ${output} tok, total ${value.totalTokens ?? input + output} tok`;
+  if (value.inputTokens == null && value.outputTokens == null) return '用量未知';
+  return `输入 ${input} tok，输出 ${output} tok，合计 ${value.totalTokens ?? input + output} tok`;
 }
 
 export { paint };

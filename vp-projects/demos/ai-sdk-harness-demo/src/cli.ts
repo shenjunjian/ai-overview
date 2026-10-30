@@ -19,27 +19,27 @@ const DEFAULTS = {
 } as const;
 
 export const USAGE = `
-ai-sdk-harness-demo — a console coding agent built on HarnessAgent
+ai-sdk-harness-demo —— 基于 HarnessAgent 的控制台编码 agent
 
-Usage
-  pnpm start -- [options]
-  pnpm start -- --folder D:/code/my-app --prompt "add a health endpoint"
+用法
+  pnpm start -- [选项]
+  pnpm start -- --folder D:/code/my-app --prompt "加一个 health 接口"
 
-Options
-  -f, --folder <path>      Folder the agent may develop in (default: ${DEFAULTS.folder})
-  -m, --model <id>         DeepSeek model id (default: ${DEFAULTS.model})
-  -p, --prompt <text>      Run a single turn and exit instead of starting a REPL
-      --instructions <t>   Extra instructions appended to the system prompt
-      --skills-dir <path>  Directory of <name>/SKILL.md bundles to load
-      --max-steps <n>      Model steps per turn (default: ${DEFAULTS.maxSteps})
-      --reasoning          Print model reasoning deltas
-      --api-key-env <name> Env var holding the DeepSeek key (default: ${DEFAULTS.apiKeyEnvVar})
-  -h, --help               Show this help
+选项
+  -f, --folder <path>      允许 agent 开发的文件夹（默认：${DEFAULTS.folder}）
+  -m, --model <id>         DeepSeek 模型 id（默认：${DEFAULTS.model}）
+  -p, --prompt <text>      只跑一轮然后退出，不进入 REPL
+      --instructions <t>   追加到系统提示词末尾的额外指令
+      --skills-dir <path>  存放 <name>/SKILL.md 指令包的目录
+      --max-steps <n>      每轮对话允许的模型步数（默认：${DEFAULTS.maxSteps}）
+      --reasoning          同时打印模型的推理增量
+      --api-key-env <name> 存放 DeepSeek key 的环境变量（默认：${DEFAULTS.apiKeyEnvVar}）
+  -h, --help               显示本帮助
 
-REPL commands
-  /help    show the command list      /tools   list host tools
-  /skills  list loaded skills         /reset   start a fresh conversation
-  /exit    leave the REPL
+REPL 命令
+  /help    显示命令列表             /tools   列出宿主工具
+  /skills  列出已加载的 skills      /reset   开启全新对话
+  /exit    退出 REPL
 `.trim();
 
 /** Reads `KEY=VALUE` lines without overriding variables already set. */
@@ -73,7 +73,7 @@ export function parseArgs(argv: ReadonlyArray<string>): DemoConfig {
   const takeValue = (flag: string, index: number): string => {
     const value = argv[index + 1];
     if (value == null || value.startsWith('-')) {
-      throw new Error(`Option ${flag} expects a value.`);
+      throw new Error(`选项 ${flag} 需要一个值。`);
     }
     return value;
   };
@@ -124,12 +124,12 @@ export function parseArgs(argv: ReadonlyArray<string>): DemoConfig {
         config.showReasoning = true;
         break;
       default:
-        throw new Error(`Unknown option: ${arg}\n\n${USAGE}`);
+        throw new Error(`未知选项：${arg}\n\n${USAGE}`);
     }
   }
 
   if (!Number.isFinite(config.maxSteps) || config.maxSteps < 1) {
-    throw new Error('--max-steps must be a positive integer.');
+    throw new Error('--max-steps 必须是正整数。');
   }
   return config;
 }

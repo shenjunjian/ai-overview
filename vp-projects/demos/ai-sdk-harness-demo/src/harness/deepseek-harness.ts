@@ -85,7 +85,7 @@ function createDeepSeekModelResolver(
       const apiKey = settings.apiKey ?? process.env[envVar];
       if (apiKey == null || apiKey.trim().length === 0) {
         throw new Error(
-          `Missing DeepSeek API key. Set the ${envVar} environment variable (or copy .env.example to .env).`,
+          `缺少 DeepSeek API key。请设置 ${envVar} 环境变量（或把 .env.example 复制为 .env 后填入）。`,
         );
       }
       provider = createDeepSeek({

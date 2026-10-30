@@ -163,7 +163,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     throw new HarnessCapabilityUnsupportedError({
       harnessId: DEEPSEEK_HARNESS_ID,
       message:
-        'The DeepSeek harness does not implement context compaction; trim the conversation by starting a new session instead.',
+        'DeepSeek harness 未实现上下文压缩；请新建一个 session 来缩减对话。',
     });
   }
 
@@ -171,7 +171,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     const turn = this.activeTurn;
     if (turn != null) {
       turn.suspendRequested = true;
-      turn.abortController.abort(new Error('Turn suspended by host.'));
+      turn.abortController.abort(new Error('宿主请求挂起本轮对话。'));
       await turn.settled.catch(() => {});
     }
     return this.continueTurnState();
@@ -196,12 +196,12 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
   private assertOpen(): void {
     if (this.closed) {
       throw new Error(
-        `Harness session '${this.sessionId}' is closed and cannot run another turn.`,
+        `harness session '${this.sessionId}' 已关闭，无法再执行新的一轮对话。`,
       );
     }
     if (this.activeTurn != null) {
       throw new Error(
-        `Harness session '${this.sessionId}' already has a turn in flight.`,
+        `harness session '${this.sessionId}' 已经有一轮对话正在进行中。`,
       );
     }
   }
@@ -210,7 +210,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     const turn = this.activeTurn;
     if (turn == null) return;
     turn.suspendRequested = true;
-    turn.abortController.abort(new Error('Harness session closed.'));
+    turn.abortController.abort(new Error('harness session 已关闭。'));
     await turn.settled.catch(() => {});
   }
 
@@ -218,7 +218,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     if (request.responseFormat?.type === 'json') {
       throw new HarnessCapabilityUnsupportedError({
         harnessId: DEEPSEEK_HARNESS_ID,
-        message: 'The DeepSeek harness does not support structured JSON output.',
+        message: 'DeepSeek harness 不支持结构化 JSON 输出。',
       });
     }
 
@@ -349,7 +349,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     // turn stopped as well - `length` alone reads like a truncated response.
     this.onNotice?.({
       type: 'warning',
-      message: `step limit (${this.maxSteps}) reached before the model stopped on its own; raise --max-steps or narrow the request`,
+      message: `模型尚未自行结束就已达到步数上限（${this.maxSteps}）；可调大 --max-steps 或缩小需求范围`,
     });
     emit({
       type: 'finish',
@@ -520,7 +520,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     return new Promise((resolve, reject) => {
       const { signal } = turn.abortController;
       if (signal.aborted) {
-        reject(signal.reason ?? new Error('Aborted'));
+        reject(signal.reason ?? new Error('已中止'));
         return;
       }
       turn.pendingHostToolResults.set(toolCallId, resolve);
@@ -528,7 +528,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
         'abort',
         () => {
           if (turn.pendingHostToolResults.delete(toolCallId)) {
-            reject(signal.reason ?? new Error('Aborted'));
+            reject(signal.reason ?? new Error('已中止'));
           }
         },
         { once: true },
@@ -608,7 +608,7 @@ export class DeepSeekHarnessSession implements HarnessV1Session {
     } catch (error) {
       this.onNotice?.({
         type: 'warning',
-        message: `Failed to materialize skills into the sandbox: ${describeError(error)}`,
+        message: `将 skills 物化到沙箱失败：${describeError(error)}`,
       });
     }
   }
@@ -659,7 +659,7 @@ function promptToText(prompt: HarnessV1Prompt): string {
 
 function throwIfAborted(turn: ActiveTurn): void {
   const { signal } = turn.abortController;
-  if (signal.aborted) throw signal.reason ?? new Error('Aborted');
+  if (signal.aborted) throw signal.reason ?? new Error('已中止');
 }
 
 function asRecord(input: unknown): Record<string, unknown> {
